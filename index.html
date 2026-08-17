@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>The Court of Love</title>
+    <meta name="description" content="A playful romantic apology experience and dinner invitation.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true">
+      <span>❤</span>
+      <span>♡</span>
+      <span>❤</span>
+      <span>♡</span>
+      <span>❤</span>
+      <span>♡</span>
+      <span>❤</span>
+      <span>♡</span>
+    </div>
+
+    <main class="court-shell" id="app">
+      <section class="court-card" aria-live="polite">
+        <div class="seal" aria-hidden="true">⚖️</div>
+        <p class="kicker" id="case-label">Case #143</p>
+        <div class="progress-wrap" aria-label="Case progress">
+          <span>Case Progress</span>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+        <div class="screen is-active" id="screen"></div>
+      </section>
+    </main>
+  </body>
+</html>
