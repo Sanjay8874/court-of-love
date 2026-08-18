@@ -10,6 +10,8 @@ A playful, romantic, mobile-friendly apology website built as a static interacti
 - Dinner invitation
 - Confetti celebration
 - EmailJS notification hook
+- Full answer collection in the final EmailJS payload
+- Romantic photo background across the experience
 - GitHub Pages deployment workflow
 - Easy personalization in `script.js`
 
@@ -54,14 +56,17 @@ To enable email notifications:
 const EMAILJS_CONFIG = {
   publicKey: "YOUR_EMAILJS_PUBLIC_KEY",
   serviceId: "YOUR_EMAILJS_SERVICE_ID",
-  templateId: "YOUR_EMAILJS_TEMPLATE_ID"
+  templateId: "YOUR_EMAILJS_TEMPLATE_ID",
+  destinationEmail: "sanjay7678160100@gmail.com"
 };
 ```
 
-6. In your EmailJS template, use variables such as `{{subject}}`, `{{message}}`, `{{boyfriend_name}}`, and `{{girlfriend_name}}`.
+6. In your EmailJS template, use variables such as `{{subject}}`, `{{message}}`, `{{answers}}`, `{{to_email}}`, `{{boyfriend_name}}`, and `{{girlfriend_name}}`.
 7. Test locally before sharing the deployed link.
 
 Do not put Gmail passwords, app passwords, private API secrets, or other private credentials in this frontend.
+
+The email is only sent after the final dinner YES. It includes every answer selected during the Court of Love experience and is addressed through the EmailJS template to `sanjay7678160100@gmail.com`.
 
 ## GitHub Pages
 
