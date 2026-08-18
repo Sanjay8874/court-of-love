@@ -11,7 +11,7 @@ const EMAILJS_CONFIG = {
 };
 
 const ROMANCE_GIFS = {
-  hug: "https://media.giphy.com/media/3o7TKG0aUjTk8DXNXG/giphy.gif",
+  hug: "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ3ZjN2JndjBnMDNrcDNscnN0bnV3amtnbjFrdHM2M3YzZW5jN2hmMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jzkiCRT0c75fYr5auW/giphy.gif",
   kiss: "https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif"
 };
 
