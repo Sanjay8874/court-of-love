@@ -10,6 +10,11 @@ const EMAILJS_CONFIG = {
   destinationEmail: "sanjay7678160100@gmail.com"
 };
 
+const ROMANCE_GIFS = {
+  hug: "https://media.giphy.com/media/3o7TKG0aUjTk8DXNXG/giphy.gif",
+  kiss: "https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif"
+};
+
 const state = {
   step: 0,
   noAttempts: 0,
@@ -90,22 +95,22 @@ const screens = [
     progress: 24,
     caseLabel: "Hearing 3 of 11",
     title: "BE HONEST...",
-    question: "Do you miss me even a little bit? 👀❤",
+    question: "I am missing you a lot 🥲 \n\n Do you miss me even a little bit? 👀❤",
     answerKey: "missMe",
     yes: "YES, A LOT 🥰",
     alt: "Maybe... 😏",
-    altMessage: "Maybe has been recorded as:\nYES, BUT SHE'S TOO SHY TO ADMIT IT. 😌❤"
+    altMessage: "Maybe has been recorded as:\nYES 😌❤"
   },
   {
     id: "phone",
     progress: 32,
     caseLabel: "Hearing 4 of 11",
     title: "EXHIBIT A: THE PHONE",
-    question: "Do you still get a little happy when you see my name pop up on your phone? 📱❤",
+    question: "Do you still get a little happy when you see my message pop up on your phone? 📱❤",
     answerKey: "phoneName",
     yes: "YES 🥰",
     alt: "NO 😤",
-    altMessage: "ERROR 404:\nI don't believe you. 😂❤"
+    altMessage: "ERROR 404:\nI don't believe you. 😘❤"
   },
   {
     id: "hug",
@@ -123,11 +128,11 @@ const screens = [
     progress: 48,
     caseLabel: "Hearing 6 of 11",
     title: "ONE THING I NEED YOU TO KNOW",
-    question: "Do you know how special you are to me? ❤",
+    question: "Do you know how special you are to me ? ❤ \n How much I care about you ? ❤ \n How much I love you ? ❤",
     answerKey: "special",
     yes: "YES 🥰",
     alt: "TELL ME... 👀",
-    altMessage: "You're not just someone I love.\n\nYou're someone whose smile can completely change my day.\n\nAnd honestly...\n\nI don't want to lose that ❤.\n\nI don't want to lose you ❤.\n\nMaybe I don't say it enough...\n\nBut you mean more to me than you probably realize. ❤",
+    altMessage: "You're not just someone I love.\nYou're someone whose smile can completely change my day.\nAnd honestly...\nI don't want to lose that ❤.\nI don't want to lose you ❤.-\n Maybe I don't always show it through my actions or say it the way I should, but please believe me... I love you more deeply than I sometimes know how to express.❤️\nYou have this special place in my heart that no one else can take.❤️ \n You make ordinary moments feel special just by being there. ❤️\nMaybe I don't say it enough...\n\nBut you mean more to me than you probably realize. ❤",
     emotional: true
   },
   {
@@ -275,7 +280,7 @@ const screens = [
         <p>Now I have only one job left...</p>
         <p><strong>Make you smile when we meet. ❤</strong></p>
       </div>
-      <button class="ps-link" data-secret aria-label="Open a small romantic postscript">P.S. ❤</button>
+      <button class="ps-link" data-secret aria-label="Open a small romantic postscript">M.S. ❤</button>
       <p class="message secret-message" id="message"></p>
     `
   }
@@ -345,9 +350,34 @@ function escapeAttr(text) {
   return text.replaceAll("&", "&amp;").replaceAll('"', "&quot;");
 }
 
+function handlePositiveAnswer(current, button) {
+  const answerText = button.dataset.answer || button.textContent.trim();
+  recordAnswer(current, answerText);
+
+  if (current.id === "hug") {
+    showRomanceModal({
+      gifUrl: ROMANCE_GIFS.hug,
+      message: "Big hug received! 🤗❤️ I really needed that.",
+      altText: "Cute hug animation"
+    });
+    return;
+  }
+
+  showRomanceModal({
+    gifUrl: ROMANCE_GIFS.kiss,
+    message: "That YES deserves a kiss. 😘❤️",
+    altText: "Cute kiss animation"
+  });
+}
+
 function bindCurrentScreen(current) {
   screenEl.querySelectorAll("[data-next]").forEach((button) => {
     button.addEventListener("click", () => {
+      if (current.answerKey) {
+        handlePositiveAnswer(current, button);
+        return;
+      }
+
       recordAnswer(current, button.dataset.answer || button.textContent.trim());
       nextScreen();
     });
@@ -437,6 +467,43 @@ function showMessage(text) {
   if (!message) return;
   message.innerHTML = formatLines(text);
   message.classList.add("has-text");
+}
+
+function showRomanceModal({ gifUrl, message, altText }) {
+  const existingModal = document.getElementById("romance-modal");
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  const modal = document.createElement("div");
+  modal.id = "romance-modal";
+  modal.className = "romance-modal";
+  modal.innerHTML = `
+    <div class="romance-backdrop" data-close-modal>
+      <div class="romance-dialog" role="dialog" aria-modal="true" aria-label="Romantic surprise">
+        <img class="romance-gif" src="${gifUrl}" alt="${altText}">
+        <p class="romance-message">${formatLines(message)}</p>
+        <button class="btn romance-continue" data-continue-modal>CONTINUE ❤️</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const continueButton = modal.querySelector("[data-continue-modal]");
+  const backdrop = modal.querySelector("[data-close-modal]");
+
+  continueButton.addEventListener("click", () => {
+    modal.remove();
+    nextScreen();
+  });
+
+  backdrop.addEventListener("click", (event) => {
+    if (event.target === backdrop) {
+      modal.remove();
+      nextScreen();
+    }
+  });
 }
 
 function moveNoButton(button, current) {
