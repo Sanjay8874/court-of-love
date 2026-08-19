@@ -3,7 +3,7 @@
 // script.js (GOOGLE_SHEET_WEB_APP_URL).
 
 // IMPORTANT: Replace SHEET_ID with your Google Sheet ID (the long id in the sheet URL)
-const SHEET_ID = 'PUT_YOUR_SHEET_ID_HERE';
+const SHEET_ID = '14r1NhywbRrYcnSpsqssEkxPz2LjWU-hgLGTWehSOtmk';
 
 function doGet(e) {
   return ContentService
@@ -25,7 +25,12 @@ function doPost(e) {
     var sheet = ss.getSheets()[0];
 
     // Ensure header row exists (first time setup)
-    var header = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var lastCol = sheet.getLastColumn();
+    var header = [];
+    if (lastCol && lastCol > 0) {
+      header = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    }
+
     if (!header || header.length === 0 || (header.length === 1 && header[0] === '')) {
       var headerRow = [
         'Timestamp',
