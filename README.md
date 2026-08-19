@@ -1,6 +1,6 @@
 # Court of Love ❤
 
-A playful, romantic, mobile-friendly apology website built as a static interactive story. The defendant pleads for forgiveness, faces a few affectionate courtroom questions, and ends with a dinner invitation.
+A playful, romantic, mobile-friendly apology website built as a static interactive story. The defendant pleads for forgiveness.
 
 ## Features
 
