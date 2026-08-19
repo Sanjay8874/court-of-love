@@ -124,7 +124,7 @@ const screens = [
     progress: 32,
     caseLabel: "Hearing 4 of 11",
     title: "EXHIBIT A: THE PHONE",
-    question: "Do you still get a little happy when you see my message pop up on your phone? 📱❤",
+    question: "Do you still get a little happy when you see my message pop up on your phone? 📱❤ \n\n Whenever I call just because I miss you and want to hear your voice, will you still pick up and talk to me? 🥺❤️",
     answerKey: "phoneName",
     yes: "YES 🥰",
     alt: "NO 😤",
@@ -157,7 +157,7 @@ const screens = [
     progress: 56,
     caseLabel: "Hearing 7 of 11",
     title: "A TINY BIT OF MAGIC",
-    question: "If I could magically appear beside you right now...\n\nWould you want me to give you a hug? 🤗❤",
+    question: "If I could magically appear beside you right now...\n\nWould you want me to give you a hug? 🤗 \\❤",
     answerKey: "magicHug",
     yes: "YES, COME HERE ❤",
     no: "NO 😤",
@@ -167,8 +167,8 @@ const screens = [
     id: "beautiful-memory",
     progress: 72,
     caseLabel: "Hearing 9 of 11",
-    title: "ONE BETTER MEMORY",
-    question: "If I asked you to forget this silly fight and make a beautiful memory with me...\n\nWould you say yes? ❤",
+    title: "MY MISTAKE, MY FAULT",
+    question: "I know I made a mistake, and I'm truly sorry...\n\n Will you give me one more chance to make you smile again? 🥺❤️",
     answerKey: "beautifulMemory",
     yes: "YES 🥰",
     alt: "Let me think 😤",
@@ -204,15 +204,24 @@ const screens = [
       <p class="eyebrow">Before the final verdict...</p>
       <h2>Let's remember something...</h2>
       <div class="memory-card">
-        <p>Whatever silly fights we have...</p>
-        <p>I still want to remember the laughs.</p>
-        <p>The conversations.</p>
-        <p>The little moments.</p>
-        <p>The stupid jokes.</p>
-        <p>The hugs.</p>
-        <p>The smiles.</p>
-        <p>And all the moments that made "us"...</p>
-        <p><strong>Because I don't want one bad moment to erase all the good ones. ❤</strong></p>
+        <p>I know I hurt you, and I know I hurt your feelings. ❤</p>
+        <p>But please believe me... I never meant to hurt you, not even for a moment.</p>
+        <p>I love you so much, just like I always have, and always will. ❤</p>
+        <p>I know you expect me to show my love through my actions, and I understand that.</p>
+        <p>Sometimes I don't know how to say everything I feel, so I keep my thoughts and feelings inside.</p>
+        <p>I know I need to change that, because you deserve to know what's in my heart.</p>
+        <p><strong>I want you in my life, not just for today or tomorrow... I want you beside me for my whole life. ❤</strong></p>
+        <p>I am saying this again because I really need you to know it.</p>
+        <p>When my mom was admitted to the hospital, everything became overwhelming. We were worried, and things were difficult for my family financially too.</p>
+        <p>I know I could have told you what was happening, but when things get difficult, I become silent and try to handle everything on my own.</p>
+        <p>It was never because I didn't trust you or didn't want you there.</p>
+        <p><strong>It was because I didn't know how to express everything I was going through. ❤</strong></p>
+        <p>I'm sorry that my silence made you feel hurt or made you feel like you weren't important to me.</p>
+        <p><strong>You are important to me. More than I probably know how to show. ❤</strong></p>
+        <p>I don't want you to only hear me say that I love you.</p>
+        <p><strong>I want to learn how to show you too. ❤</strong></p>
+        <p>And if you give me another chance, I'll try to do better, talk more, and let you into the parts of my heart that I usually keep to myself.</p>
+        <p><strong>Because I don't want to lose you. I want us. ❤</strong></p>
       </div>
       <div class="actions">
         <button class="btn" data-next>CONTINUE ❤</button>
