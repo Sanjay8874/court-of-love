@@ -16,7 +16,7 @@ const ROMANCE_GIFS = {
 };
 
 // Google Sheets Web App URL (deploy your Apps Script as a Web App and paste the URL here)
-const GOOGLE_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwHOryQOObiewPic7nPAwEIL2XkyxtMJisp4vLmmQ8QIFXzdB6r3OxxsQwrDA3qgjKrpA/exec";
+const GOOGLE_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzn0SQdy4EZuYBxSLICSM16ufGwa0aT07cWr1gC89qbQ7Gi4JSI-Faw6uTXjeIwkdaq1A/exec";
 
 // Generate a session id for each visit (persist for the tab session)
 let SESSION_ID = sessionStorage.getItem("court_session_id");
