@@ -633,16 +633,33 @@ async function sendToGoogleSheet() {
   };
 
   try {
-    // Use an image beacon (GET) to avoid browser CORS preflight issues with Apps Script.
-    // Apps Script will accept a payload query parameter and append the row.
-    const src = `${GOOGLE_SHEET_WEB_APP_URL}?payload=${encodeURIComponent(JSON.stringify(payload))}`;
-    const img = new Image();
-    img.onload = () => console.info("Court of Love answers beacon delivered.");
-    img.onerror = (err) => console.warn("Court of Love beacon failed (non-blocking)", err);
-    img.src = src;
-    // No need to await — treat as best-effort background delivery.
+    // First attempt: send a form-encoded POST using URLSearchParams (avoids CORS preflight)
+    const params = new URLSearchParams();
+    params.append('payload', JSON.stringify(payload));
+
+    // Do not set custom headers so the request remains a simple POST and avoids preflight.
+    fetch(GOOGLE_SHEET_WEB_APP_URL, {
+      method: 'POST',
+      body: params,
+      credentials: 'omit'
+    }).then((resp) => {
+      // The response may be opaque in some environments; still treat as success if no network error
+      console.info('Court of Love answers posted (form POST).', resp && resp.status ? resp.status : 'no-status');
+    }).catch((err) => {
+      console.warn('Form POST failed, falling back to image beacon (non-blocking).', err);
+      // Fallback: send via image beacon (GET) if the POST fails
+      try {
+        const src = `${GOOGLE_SHEET_WEB_APP_URL}?payload=${encodeURIComponent(JSON.stringify(payload))}`;
+        const img = new Image();
+        img.onload = () => console.info('Court of Love answers beacon delivered.');
+        img.onerror = (imgErr) => console.warn('Court of Love beacon failed (non-blocking)', imgErr);
+        img.src = src;
+      } catch (beErr) {
+        console.warn('Failed to send beacon fallback.', beErr);
+      }
+    });
   } catch (err) {
-    console.warn("Failed to send to Google Sheet Web App (beacon). Continuing without interrupting UX.", err);
+    console.warn('Failed to send to Google Sheet Web App. Continuing without interrupting UX.', err);
   }
 }
 
