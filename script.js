@@ -633,21 +633,16 @@ async function sendToGoogleSheet() {
   };
 
   try {
-    const resp = await fetch(GOOGLE_SHEET_WEB_APP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      mode: "cors"
-    });
-
-    if (!resp.ok) {
-      throw new Error(`Google Sheets POST failed with status ${resp.status}`);
-    }
-
-    console.info("Court of Love answers sent to Google Sheet Web App.");
+    // Use an image beacon (GET) to avoid browser CORS preflight issues with Apps Script.
+    // Apps Script will accept a payload query parameter and append the row.
+    const src = `${GOOGLE_SHEET_WEB_APP_URL}?payload=${encodeURIComponent(JSON.stringify(payload))}`;
+    const img = new Image();
+    img.onload = () => console.info("Court of Love answers beacon delivered.");
+    img.onerror = (err) => console.warn("Court of Love beacon failed (non-blocking)", err);
+    img.src = src;
+    // No need to await — treat as best-effort background delivery.
   } catch (err) {
-    // Do not expose errors to the end user; log for developer diagnostics
-    console.warn("Failed to send to Google Sheet Web App. Continuing without interrupting UX.", err);
+    console.warn("Failed to send to Google Sheet Web App (beacon). Continuing without interrupting UX.", err);
   }
 }
 
