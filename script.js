@@ -15,6 +15,22 @@ const ROMANCE_GIFS = {
   kiss: "https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif"
 };
 
+// Google Sheets Web App URL (deploy your Apps Script as a Web App and paste the URL here)
+const GOOGLE_SHEET_WEB_APP_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
+
+// Generate a session id for each visit (persist for the tab session)
+let SESSION_ID = sessionStorage.getItem("court_session_id");
+if (!SESSION_ID) {
+  try {
+    SESSION_ID = (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : `sess_${Date.now()}_${Math.floor(Math.random()*100000)}`;
+  } catch (e) {
+    SESSION_ID = `sess_${Date.now()}_${Math.floor(Math.random()*100000)}`;
+  }
+  sessionStorage.setItem("court_session_id", SESSION_ID);
+}
+
+
+
 const state = {
   step: 0,
   noAttempts: 0,
@@ -35,6 +51,8 @@ const state = {
     dinner: ""
   }
 };
+
+const answers = state.answers;
 
 const playfulNoMessages = [
   "Nice try 😂",
@@ -130,8 +148,7 @@ const screens = [
     title: "ONE THING I NEED YOU TO KNOW",
     question: "Do you know how special you are to me ? ❤ \n How much I care about you ? ❤ \n How much I love you ? ❤",
     answerKey: "special",
-    yes: "YES 🥰",
-    alt: "TELL ME... 👀",
+    alt: "TELL ME... ❤️",
     altMessage: "You're not just someone I love.\nYou're someone whose smile can completely change my day.\nAnd honestly...\nI don't want to lose that ❤.\nI don't want to lose you ❤.-\n Maybe I don't always show it through my actions or say it the way I should, but please believe me... I love you more deeply than I sometimes know how to express.❤️\nYou have this special place in my heart that no one else can take.❤️ \n You make ordinary moments feel special just by being there. ❤️\nMaybe I don't say it enough...\n\nBut you mean more to me than you probably realize. ❤",
     emotional: true
   },
@@ -145,17 +162,6 @@ const screens = [
     yes: "YES, COME HERE ❤",
     no: "NO 😤",
     noMode: "runaway"
-  },
-  {
-    id: "good-moments",
-    progress: 64,
-    caseLabel: "Hearing 8 of 11",
-    title: "THE GOOD MOMENTS",
-    question: "Do you still smile sometimes when you remember our good moments together? 🥰",
-    answerKey: "goodMoments",
-    yes: "YES ❤",
-    alt: "Maybe 😏",
-    altMessage: "The court accepts Maybe as a shy little YES. 😌❤"
   },
   {
     id: "beautiful-memory",
@@ -317,29 +323,67 @@ function render() {
   state.activeRunaway = null;
   caseLabel.textContent = current.caseLabel;
   progressLabel.textContent = current.id === "success" ? "Case Closed ❤" : "Case Progress";
-  progressFill.style.width = `${current.progress}%`;
+  // Compute progress dynamically so removed questions do not affect the visual progress
+  const progressPercent = Math.round((state.step / Math.max(1, screens.length - 1)) * 100);
+  progressFill.style.width = `${progressPercent}%`;
   screenEl.classList.remove("is-active");
   void screenEl.offsetWidth;
   screenEl.innerHTML = current.render ? current.render() : renderQuestion(current);
+
+  // Insert a PREVIOUS button for every screen except the first
+  if (state.step > 0) {
+    const actions = screenEl.querySelector('.actions') || (() => {
+      const a = document.createElement('div');
+      a.className = 'actions';
+      screenEl.appendChild(a);
+      return a;
+    })();
+
+    // Only add previous if not already present
+    if (!actions.querySelector('[data-prev]')) {
+      const prevBtn = document.createElement('button');
+      prevBtn.className = 'btn secondary prev';
+      prevBtn.setAttribute('data-prev', '');
+      prevBtn.textContent = 'PREVIOUS ←';
+      // Insert at start so it appears before other action buttons
+      actions.insertBefore(prevBtn, actions.firstChild);
+      prevBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        prevScreen();
+      });
+    }
+  }
+
   screenEl.classList.add("is-active");
   bindCurrentScreen(current);
 }
 
 function renderQuestion(current) {
-  return `
-    <p class="eyebrow">⚖️ THE COURT OF LOVE</p>
-    <h2 class="question-title">${current.title}</h2>
-    <p>${formatLines(current.question)}</p>
-    <p class="message ${current.emotional ? "emotional-message" : ""}" id="message"></p>
-    <div class="actions">
-      <button class="btn" data-answer="${escapeAttr(current.yes)}" data-next>${current.yes}</button>
-      ${
-        current.no
-          ? `<button class="btn secondary runaway" data-answer="${escapeAttr(current.no)}" data-no>${current.no}</button>`
-          : `<button class="btn secondary" data-answer="${escapeAttr(current.alt)}" data-alt>${current.alt}</button>`
-      }
-    </div>
-  `;
+  const questionHtml = [];
+  questionHtml.push('<p class="eyebrow">⚖️ THE COURT OF LOVE</p>');
+  questionHtml.push(`<h2 class="question-title">${current.title}</h2>`);
+  questionHtml.push(`<p>${formatLines(current.question)}</p>`);
+  questionHtml.push(`<p class="message ${current.emotional ? "emotional-message" : ""}" id="message"></p>`);
+
+  // Build action buttons based on what this screen defines
+  const actions = [];
+  const existingAnswer = current.answerKey ? (state.answers[current.answerKey] || "") : "";
+
+  if (current.yes) {
+    const isSelected = existingAnswer && existingAnswer === current.yes ? ' selected' : '';
+    actions.push(`<button class="btn${isSelected}" data-answer="${escapeAttr(current.yes)}" data-next>${current.yes}</button>`);
+  }
+
+  if (current.no) {
+    const isSelected = existingAnswer && existingAnswer === current.no ? ' selected' : '';
+    actions.push(`<button class="btn secondary runaway${isSelected}" data-answer="${escapeAttr(current.no)}" data-no>${current.no}</button>`);
+  } else if (current.alt) {
+    const isSelected = existingAnswer && existingAnswer === current.alt ? ' selected' : '';
+    actions.push(`<button class="btn secondary${isSelected}" data-answer="${escapeAttr(current.alt)}" data-alt>${current.alt}</button>`);
+  }
+
+  questionHtml.push(`<div class="actions">${actions.join('\n')}</div>`);
+  return questionHtml.join('\n');
 }
 
 function formatLines(text) {
@@ -457,6 +501,12 @@ function recordAnswer(current, answer) {
   state.answers[current.answerKey] = answer;
 }
 
+function prevScreen() {
+  // Move to previous step while preserving answers
+  state.step = Math.max(state.step - 1, 0);
+  render();
+}
+
 function nextScreen() {
   state.step = Math.min(state.step + 1, screens.length - 1);
   render();
@@ -564,7 +614,41 @@ async function acceptDinner() {
   state.answers.dinner = "YES ❤";
   nextScreen();
   fireConfetti();
+  // Send the answers to the configured Google Sheet Web App (if configured)
+  await sendToGoogleSheet();
+  // Keep existing EmailJS as optional fallback (will no-op if not configured)
   await sendDinnerEmail();
+}
+
+async function sendToGoogleSheet() {
+  if (!GOOGLE_SHEET_WEB_APP_URL || GOOGLE_SHEET_WEB_APP_URL.startsWith("YOUR_")) {
+    console.info("Google Sheet Web App URL not configured; skipping Sheets submission.");
+    return;
+  }
+
+  const payload = {
+    timestamp: new Date().toISOString(),
+    sessionId: SESSION_ID,
+    answers: state.answers
+  };
+
+  try {
+    const resp = await fetch(GOOGLE_SHEET_WEB_APP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      mode: "cors"
+    });
+
+    if (!resp.ok) {
+      throw new Error(`Google Sheets POST failed with status ${resp.status}`);
+    }
+
+    console.info("Court of Love answers sent to Google Sheet Web App.");
+  } catch (err) {
+    // Do not expose errors to the end user; log for developer diagnostics
+    console.warn("Failed to send to Google Sheet Web App. Continuing without interrupting UX.", err);
+  }
 }
 
 async function sendDinnerEmail() {
