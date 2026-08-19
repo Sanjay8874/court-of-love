@@ -9,11 +9,18 @@ function doGet(e) {
   // If a payload query parameter is provided, treat this like a POST (useful for image-beacon / simple GET submissions)
   try {
     if (e && e.parameter && e.parameter.payload) {
-      var data = JSON.parse(e.parameter.payload);
-      _appendRowFromPayload(data);
-      return ContentService
-        .createTextOutput(JSON.stringify({status: 'ok', message: 'Appended via GET payload'}))
-        .setMimeType(ContentService.MimeType.JSON);
+      var raw = e.parameter.payload;
+      try {
+        var data = JSON.parse(raw);
+        _appendRowFromPayload(data);
+        return ContentService
+          .createTextOutput(JSON.stringify({status: 'ok', message: 'Appended via GET payload'}))
+          .setMimeType(ContentService.MimeType.JSON);
+      } catch (parseErr) {
+        return ContentService
+          .createTextOutput(JSON.stringify({status: 'error', message: 'Invalid JSON in payload'}))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
     }
   } catch (err) {
     return ContentService
@@ -29,17 +36,49 @@ function doGet(e) {
 function doPost(e) {
   try {
     var data = null;
-    if (e.postData && e.postData.contents) {
-      data = JSON.parse(e.postData.contents);
-    } else if (e.parameter && e.parameter.payload) {
-      data = JSON.parse(e.parameter.payload);
-    } else {
-      // Try to build data from parameters if provided directly
+
+    // 1) If the POST body is raw JSON (application/json), e.postData.contents will be JSON
+    if (e.postData && e.postData.type && e.postData.type.indexOf('application/json') !== -1 && e.postData.contents) {
+      try {
+        data = JSON.parse(e.postData.contents);
+      } catch (jsonErr) {
+        // fall through to next methods
+      }
+    }
+
+    // 2) If body is form-encoded (payload=<encoded-json>), Apps Script provides e.parameter.payload
+    if (!data && e.parameter && e.parameter.payload) {
+      try {
+        data = JSON.parse(e.parameter.payload);
+      } catch (formErr) {
+        // ignore
+      }
+    }
+
+    // 3) Some environments set e.postData.contents to a urlencoded string like 'payload=%7B...%7D'
+    if (!data && e.postData && e.postData.contents) {
+      var raw = e.postData.contents;
+      // Try to extract payload=... pattern
+      var match = raw.match(/payload=(.*)/);
+      if (match && match[1]) {
+        try {
+          var decoded = decodeURIComponent(match[1]);
+          data = JSON.parse(decoded);
+        } catch (decErr) {
+          // ignore
+        }
+      }
+    }
+
+    // 4) Last resort: build from parameters directly
+    if (!data) {
       data = { timestamp: new Date().toISOString(), sessionId: '', answers: {} };
-      for (var key in e.parameter) {
-        if (key === 'timestamp') data.timestamp = e.parameter[key];
-        else if (key === 'sessionId') data.sessionId = e.parameter[key];
-        else data.answers[key] = e.parameter[key];
+      if (e.parameter) {
+        for (var key in e.parameter) {
+          if (key === 'timestamp') data.timestamp = e.parameter[key];
+          else if (key === 'sessionId') data.sessionId = e.parameter[key];
+          else data.answers[key] = e.parameter[key];
+        }
       }
     }
 
